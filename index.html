@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relax XR — Start your day before the world starts you.</title>
+  <meta name="description" content="A 10-minute morning readiness ritual designed for Android XR glasses. Guided breathing, visual focus, and AI-generated affirmations to help you wake up mentally aligned.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #D4AF37;
+      --gold-light: #E8C84E;
+      --dark: #050A14;
+      --dark-mid: #0D1B2A;
+      --ink: #171717;
+      --ink-mid: #404040;
+      --muted: #6B7280;
+      --subtle: #9CA3AF;
+      --surface: #FAFAFA;
+      --warm-surface: #F5F3EE;
+      --white: #FFFFFF;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Raleway', sans-serif;
+      background: var(--surface);
+      color: var(--ink);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Lora', serif; }
+
+    /* ── Keyframes ─────────────────────────────────────────── */
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); opacity: 0.3; }
+      50%       { transform: scale(1.18); opacity: 0.55; }
+    }
+
+    @keyframes breatheSlow {
+      0%, 100% { transform: scale(1.04); opacity: 0.18; }
+      50%       { transform: scale(1.28); opacity: 0.4; }
+    }
+
+    @keyframes drift {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(12px, -16px) scale(1.04); }
+      66%  { transform: translate(-8px, 10px) scale(0.97); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.35; }
+      50%       { opacity: 0.65; }
+    }
+
+    @keyframes horizonGlow {
+      0%, 100% { opacity: 0.15; }
+      50%       { opacity: 0.4; }
+    }
+
+    @keyframes scrollBob {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(4px); }
+    }
+
+    .a-breathe      { animation: breathe 8s ease-in-out infinite; }
+    .a-breathe-slow { animation: breatheSlow 13s ease-in-out infinite; }
+    .a-drift        { animation: drift 20s ease-in-out infinite; }
+    .a-pulse        { animation: pulse 4s ease-in-out infinite; }
+    .a-fade-up      { opacity: 0; animation: fadeUp 0.9s ease-out forwards; }
+    .a-scroll-bob   { animation: scrollBob 2s ease-in-out infinite; }
+
+    .d-200  { animation-delay: 0.2s; }
+    .d-400  { animation-delay: 0.4s; }
+    .d-600  { animation-delay: 0.6s; }
+    .d-800  { animation-delay: 0.8s; }
+    .d-1000 { animation-delay: 1.0s; }
+    .d-1200 { animation-delay: 1.2s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+      .a-fade-up { opacity: 1; transform: none; }
+    }
+
+    /* ── Utility ───────────────────────────────────────────── */
+    .container {
+      max-width: 1120px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 40px;
+      padding-right: 40px;
+    }
+
+    .section-label {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 14px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--gold);
+      color: #0a0a0a;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 13px 26px;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 200ms, transform 150ms;
+      flex-shrink: 0;
+      text-decoration: none;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: scale(1.02); }
+
+    /* ── Card ──────────────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border-radius: 20px;
+      border: 1px solid rgba(0,0,0,0.05);
+      box-shadow: 0 2px 16px rgba(0,0,0,0.055), 0 1px 3px rgba(0,0,0,0.04);
+      transition: transform 240ms ease, box-shadow 240ms ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 36px rgba(0,0,0,0.1);
+    }
+
+    /* ── Step Icon ─────────────────────────────────────────── */
+    .step-icon {
+      width: 48px;
+      height: 48px;
+      background: #F8F5EC;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 22px;
+    }
+
+    /* ── Pill Row ──────────────────────────────────────────── */
+    .pill-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: #FAFAFA;
+      border-radius: 12px;
+      border: 1px solid #EFEFEF;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+    }
+
+    .pill-row-neg {
+      color: var(--subtle);
+    }
+
+    /* ── Email form ────────────────────────────────────────── */
+    .email-form {
+      display: flex;
+      gap: 8px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 100px;
+      padding: 6px 6px 6px 22px;
+      backdrop-filter: blur(12px);
+    }
+
+    .email-form input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.925rem;
+      color: white;
+      min-width: 0;
+    }
+
+    .email-form input::placeholder { color: rgba(255,255,255,0.3); }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .container { padding-left: 20px; padding-right: 20px; }
+      .hide-mobile { display: none !important; }
+      .two-col { grid-template-columns: 1fr !important; gap: 48px !important; }
+      .four-col { grid-template-columns: 1fr 1fr !important; }
+      .five-col { grid-template-columns: 1fr !important; }
+      .email-form { flex-direction: column; border-radius: 16px; padding: 12px; gap: 8px; }
+      .email-form input { padding: 8px 4px; font-size: 1rem; }
+      .btn-primary { width: 100%; text-align: center; }
+      .hero-pad { padding: 60px 20px 100px !important; }
+      .stat-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+      .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .four-col { grid-template-columns: 1fr !important; }
+    }
+
+    /* ── Custom scrollbar ──────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--dark); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════════════════ -->
+<section style="position:relative; min-height:100vh; overflow:hidden; background:linear-gradient(150deg,#040912 0%,#0a1525 45%,#0f1e30 70%,#080e1a 100%);">
+
+  <!-- Ambient orb layer -->
+  <div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;">
+    <!-- Primary center bloom -->
+    <div class="a-breathe" style="position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,0.13) 0%,rgba(80,120,180,0.07) 45%,transparent 70%);"></div>
+    <!-- Secondary drift orb -->
+    <div class="a-breathe-slow a-drift" style="position:absolute;top:22%;right:18%;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(90,150,220,0.09) 0%,transparent 70%);animation-delay:-4s;"></div>
+    <!-- Tertiary warm orb -->
+    <div class="a-breathe" style="position:absolute;bottom:28%;left:12%;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(180,135,90,0.07) 0%,transparent 70%);animation-delay:-7s;"></div>
+    <!-- Horizon line -->
+    <div class="a-pulse" style="position:absolute;bottom:33%;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(212,175,55,0.22) 30%,rgba(255,255,255,0.08) 50%,rgba(212,175,55,0.22) 70%,transparent 100%);"></div>
+    <!-- Secondary horizon -->
+    <div class="a-pulse" style="position:absolute;bottom:36%;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(100,150,200,0.1) 40%,rgba(100,150,200,0.1) 60%,transparent 100%);animation-delay:-2s;"></div>
+  </div>
+
+  <!-- Nav -->
+  <nav style="position:relative;z-index:20;display:flex;align-items:center;justify-content:space-between;max-width:1120px;margin:0 auto;padding:28px 40px;">
+    <div style="font-family:'Lora',serif;font-size:1.3rem;font-weight:500;color:white;letter-spacing:0.01em;">
+      Relax<span style="color:var(--gold);">XR</span>
+    </div>
+    <a href="#early-access" style="font-family:'Raleway',sans-serif;font-size:0.78rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);text-decoration:none;padding:8px 20px;border:1px solid rgba(255,255,255,0.14);border-radius:100px;transition:all 220ms;"
+       onmouseover="this.style.color='rgba(255,255,255,0.85)';this.style.borderColor='rgba(255,255,255,0.3)'"
+       onmouseout="this.style.color='rgba(255,255,255,0.5)';this.style.borderColor='rgba(255,255,255,0.14)'">
+      Early Access
+    </a>
+  </nav>
+
+  <!-- Hero copy -->
+  <div class="hero-pad" style="position:relative;z-index:10;max-width:760px;margin:0 auto;padding:72px 40px 130px;text-align:center;">
+
+    <!-- Device chip -->
+    <div class="a-fade-up" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.055);border:1px solid rgba(255,255,255,0.1);border-radius:100px;padding:7px 18px;margin-bottom:52px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+      </svg>
+      <span style="font-family:'Raleway',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.55);">Android XR Glasses</span>
+    </div>
+
+    <!-- Headline -->
+    <h1 class="a-fade-up d-200" style="font-size:clamp(2.4rem,6.5vw,4.8rem);font-weight:500;color:white;line-height:1.12;letter-spacing:-0.025em;margin-bottom:24px;">
+      Start your day<br>before the world<br><em style="font-style:italic;color:var(--gold);">starts you.</em>
+    </h1>
+
+    <!-- Subhead -->
+    <p class="a-fade-up d-400" style="font-size:clamp(1rem,2vw,1.15rem);font-weight:300;color:rgba(255,255,255,0.5);line-height:1.75;margin-bottom:56px;max-width:510px;margin-left:auto;margin-right:auto;">
+      A 10-minute morning readiness ritual for Android XR glasses — guided breathing, visual focus, and AI-generated affirmations. Eyes open. Feet on the floor. Day begins.
+    </p>
+
+    <!-- Email capture -->
+    <div class="a-fade-up d-600" id="early-access" style="max-width:480px;margin:0 auto 28px;">
+      <form class="email-form" onsubmit="handleSubmit(event)" aria-label="Join early access">
+        <label for="email-hero" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Email address</label>
+        <input id="email-hero" type="email" placeholder="your@email.com" required autocomplete="email">
+        <button type="submit" class="btn-primary">Join Early Access</button>
+      </form>
+      <p style="font-family:'Raleway',sans-serif;font-size:0.74rem;color:rgba(255,255,255,0.25);margin-top:14px;letter-spacing:0.03em;">
+        No spam. No streaks. No pressure.
+      </p>
+    </div>
+
+    <!-- Session pill -->
+    <div class="a-fade-up d-800 a-pulse" style="display:inline-flex;align-items:center;gap:10px;color:rgba(255,255,255,0.3);font-family:'Raleway',sans-serif;font-size:0.78rem;letter-spacing:0.08em;">
+      <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;" aria-hidden="true"></span>
+      10 minutes &nbsp;·&nbsp; Every morning &nbsp;·&nbsp; One tap
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="a-scroll-bob" aria-hidden="true" style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:7px;opacity:0.25;">
+    <span style="font-family:'Raleway',sans-serif;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:white;">Scroll</span>
+    <svg width="18" height="26" viewBox="0 0 18 28" fill="none" aria-hidden="true">
+      <rect x="1" y="1" width="16" height="26" rx="8" stroke="white" stroke-width="1.5"/>
+      <rect x="8" y="6" width="2" height="6" rx="1" fill="white"/>
+    </svg>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     HOW IT WORKS
+═══════════════════════════════════════════════════════════ -->
+<section style="background:var(--surface);padding:120px 0;">
+  <div class="container">
+
+    <div style="text-align:center;margin-bottom:72px;">
+      <span class="section-label">The Ritual</span>
+      <h2 style="font-size:clamp(1.9rem,4vw,3rem);font-weight:500;color:var(--ink);line-height:1.2;margin-bottom:14px;">
+        Four steps. Ten minutes.<br>The whole thing.
+      </h2>
+      <p style="font-size:0.95rem;color:var(--muted);max-width:400px;margin:0 auto;line-height:1.7;">
+        No menus. No decisions. Just the ritual.
+      </p>
+    </div>
+
+    <div class="four-col" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+
+      <!-- Step 01 -->
+      <div class="card" style="padding:36px 28px;">
+        <div style="font-family:'Lora',serif;font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;">Step 01</div>
+        <div class="step-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8" opacity="0.35"/>
+          </svg>
+        </div>
+        <h3 style="font-size:1.15rem;font-weight:600;color:var(--ink);margin-bottom:10px;line-height:1.3;">Put on your glasses</h3>
+        <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;">Tap once. A subtle ambient field fades in. One grounding prompt appears. You select your energy level with your gaze.</p>
+      </div>
+
+      <!-- Step 02 -->
+      <div class="card" style="padding:36px 28px;">
+        <div style="font-family:'Lora',serif;font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;">Step 02</div>
+        <div class="step-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2C8 2 5 5.5 5 9.5 5 15 12 22 12 22s7-7 7-12.5C19 5.5 16 2 12 2z"/>
+          </svg>
+        </div>
+        <h3 style="font-size:1.15rem;font-weight:600;color:var(--ink);margin-bottom:10px;line-height:1.3;">Breathe with the visuals</h3>
+        <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;">Abstract shapes expand and contract with your breath. Slow gradients. No narration overload. Eyes open. You stay in your room.</p>
+      </div>
+
+      <!-- Step 03 -->
+      <div class="card" style="padding:36px 28px;">
+        <div style="font-family:'Lora',serif;font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;">Step 03</div>
+        <div class="step-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12" opacity="0.4"/>
+          </svg>
+        </div>
+        <h3 style="font-size:1.15rem;font-weight:600;color:var(--ink);margin-bottom:10px;line-height:1.3;">Set your mental direction</h3>
+        <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;">One or two affirmations — curated or AI-generated. A visual closure cue replaces the applause. Then silence.</p>
+      </div>
+
+      <!-- Step 04 — dark card -->
+      <div style="padding:36px 28px;background:var(--ink);border-radius:20px;box-shadow:0 2px 16px rgba(0,0,0,0.18);transition:transform 240ms ease,box-shadow 240ms ease;cursor:default;"
+           onmouseover="this.style.transform='translateY(-5px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,0.28)'"
+           onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 16px rgba(0,0,0,0.18)'">
+        <div style="font-family:'Lora',serif;font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;">Step 04</div>
+        <div style="width:48px;height:48px;background:rgba(212,175,55,0.14);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h3 style="font-size:1.15rem;font-weight:600;color:white;margin-bottom:10px;line-height:1.3;">Start your day</h3>
+        <p style="font-size:0.85rem;color:rgba(255,255,255,0.45);line-height:1.65;">Visuals fade. One sentence appears briefly. Glasses off. The world is still there — but now you're ready for it.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     WHY XR
+═══════════════════════════════════════════════════════════ -->
+<section style="background:var(--white);padding:120px 0;overflow:hidden;">
+  <div class="container">
+    <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+
+      <!-- Visual preview -->
+      <div aria-hidden="true" style="position:relative;height:500px;background:linear-gradient(140deg,#080e1c,#0f1e30);border-radius:28px;overflow:hidden;order:0;">
+        <!-- Ambient orbs -->
+        <div class="a-breathe" style="position:absolute;top:44%;left:50%;transform:translate(-50%,-55%);width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,0.16) 0%,transparent 68%);"></div>
+        <div class="a-breathe-slow" style="position:absolute;top:30%;left:38%;transform:translate(-50%,-50%);width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(90,150,220,0.11) 0%,transparent 70%);animation-delay:-5s;"></div>
+        <!-- Horizon lines -->
+        <div class="a-pulse" style="position:absolute;top:62%;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,0.35),transparent);"></div>
+        <div class="a-pulse" style="position:absolute;top:66%;left:18%;right:18%;height:1px;background:linear-gradient(90deg,transparent,rgba(120,160,200,0.2),transparent);animation-delay:-2.5s;"></div>
+        <!-- Glasses frame motif -->
+        <div style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;">
+          <div style="width:88px;height:30px;border:1.5px solid rgba(255,255,255,0.12);border-radius:9px;background:rgba(255,255,255,0.025);"></div>
+          <div style="width:14px;height:2px;background:rgba(255,255,255,0.1);"></div>
+          <div style="width:88px;height:30px;border:1.5px solid rgba(255,255,255,0.12);border-radius:9px;background:rgba(255,255,255,0.025);"></div>
+        </div>
+        <p style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-family:'Raleway',sans-serif;font-size:0.6rem;color:rgba(255,255,255,0.18);letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;">What you see through the glasses</p>
+        <!-- Corner label -->
+        <div style="position:absolute;top:20px;left:20px;display:flex;align-items:center;gap:6px;">
+          <div style="width:5px;height:5px;border-radius:50%;background:var(--gold);" class="a-pulse"></div>
+          <span style="font-family:'Raleway',sans-serif;font-size:0.6rem;color:rgba(255,255,255,0.25);letter-spacing:0.1em;text-transform:uppercase;">Live</span>
+        </div>
+      </div>
+
+      <!-- Copy -->
+      <div>
+        <span class="section-label">Why XR</span>
+        <h2 style="font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:500;color:var(--ink);line-height:1.25;margin-bottom:20px;">
+          Meditation for people<br>who need to stay awake.
+        </h2>
+        <p style="font-size:0.95rem;color:var(--muted);line-height:1.72;margin-bottom:40px;">
+          Closing your eyes isn't always the answer. XR lets you receive visual guidance while remaining present in your actual space — no headset darkness, no dissociation, no void.
+        </p>
+
+        <div style="display:flex;flex-direction:column;gap:22px;">
+
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="width:38px;height:38px;background:#F8F5EC;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
+            <div>
+              <h4 style="font-size:0.975rem;font-weight:600;color:var(--ink);margin-bottom:4px;">Eyes-open meditation</h4>
+              <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;">Soft abstract visuals overlay your real room. You see both worlds simultaneously. You stay grounded.</p>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="width:38px;height:38px;background:#F8F5EC;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18" stroke-width="3"/>
+              </svg>
+            </div>
+            <div>
+              <h4 style="font-size:0.975rem;font-weight:600;color:var(--ink);margin-bottom:4px;">No phone distraction</h4>
+              <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;">Your phone stays on the nightstand. No notifications, no feeds, no decisions before the ritual ends.</p>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="width:38px;height:38px;background:#F8F5EC;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div>
+              <h4 style="font-size:0.975rem;font-weight:600;color:var(--ink);margin-bottom:4px;">Designed for 7am, not 11pm</h4>
+              <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;">Low visual noise. Slow gradients. Not psychedelic. Calming without being sleep-inducing. Works in a real room, not a void.</p>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:16px;align-items:flex-start;">
+            <div style="width:38px;height:38px;background:#F8F5EC;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </div>
+            <div>
+              <h4 style="font-size:0.975rem;font-weight:600;color:var(--ink);margin-bottom:4px;">Visual focus without isolation</h4>
+              <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;">The ritual primes agency. You leave it more present, not more removed from the world waiting for you.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SESSION LIBRARY
+═══════════════════════════════════════════════════════════ -->
+<section style="background:var(--warm-surface);padding:120px 0;">
+  <div class="container">
+
+    <div style="text-align:center;margin-bottom:60px;">
+      <span class="section-label">Session Library</span>
+      <h2 style="font-size:clamp(1.9rem,4vw,3rem);font-weight:500;color:var(--ink);line-height:1.2;margin-bottom:14px;">
+        Ritual, not content.
+      </h2>
+      <p style="font-size:0.95rem;color:var(--muted);max-width:420px;margin:0 auto;line-height:1.7;">
+        12–15 handcrafted sessions. Each exactly 10 minutes. Predictable structure. Rewatchable without fatigue.
+      </p>
+    </div>
+
+    <div class="five-col" style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;">
+
+      <div style="padding:28px 22px;background:var(--white);border-radius:18px;border:1px solid transparent;transition:border-color 240ms,transform 220ms;cursor:default;"
+           onmouseover="this.style.borderColor='var(--gold)';this.style.transform='translateY(-3px)'"
+           onmouseout="this.style.borderColor='transparent';this.style.transform='translateY(0)'">
+        <div style="width:8px;height:8px;background:var(--gold);border-radius:50%;margin-bottom:18px;" aria-hidden="true"></div>
+        <h4 style="font-size:0.95rem;font-weight:600;color:var(--ink);margin-bottom:7px;line-height:1.3;">Focus &amp; Clarity</h4>
+        <p style="font-size:0.78rem;color:var(--subtle);line-height:1.55;">Sharpen attention before the day demands it of you</p>
+      </div>
+
+      <div style="padding:28px 22px;background:var(--white);border-radius:18px;border:1px solid transparent;transition:border-color 240ms,transform 220ms;cursor:default;"
+           onmouseover="this.style.borderColor='var(--gold)';this.style.transform='translateY(-3px)'"
+           onmouseout="this.style.borderColor='transparent';this.style.transform='translateY(0)'">
+        <div style="width:8px;height:8px;background:#B8A87A;border-radius:50%;margin-bottom:18px;" aria-hidden="true"></div>
+        <h4 style="font-size:0.95rem;font-weight:600;color:var(--ink);margin-bottom:7px;line-height:1.3;">Calm Energy</h4>
+        <p style="font-size:0.78rem;color:var(--subtle);line-height:1.55;">Alert without agitation. Awake without anxiety</p>
+      </div>
+
+      <div style="padding:28px 22px;background:var(--white);border-radius:18px;border:1px solid transparent;transition:border-color 240ms,transform 220ms;cursor:default;"
+           onmouseover="this.style.borderColor='var(--gold)';this.style.transform='translateY(-3px)'"
+           onmouseout="this.style.borderColor='transparent';this.style.transform='translateY(0)'">
+        <div style="width:8px;height:8px;background:#8FA4B8;border-radius:50%;margin-bottom:18px;" aria-hidden="true"></div>
+        <h4 style="font-size:0.95rem;font-weight:600;color:var(--ink);margin-bottom:7px;line-height:1.3;">Confidence Without Force</h4>
+        <p style="font-size:0.78rem;color:var(--subtle);line-height:1.55;">Grounded presence, not performative intensity</p>
+      </div>
+
+      <div style="padding:28px 22px;background:var(--white);border-radius:18px;border:1px solid transparent;transition:border-color 240ms,transform 220ms;cursor:default;"
+           onmouseover="this.style.borderColor='var(--gold)';this.style.transform='translateY(-3px)'"
+           onmouseout="this.style.borderColor='transparent';this.style.transform='translateY(0)'">
+        <div style="width:8px;height:8px;background:#A89FA8;border-radius:50%;margin-bottom:18px;" aria-hidden="true"></div>
+        <h4 style="font-size:0.95rem;font-weight:600;color:var(--ink);margin-bottom:7px;line-height:1.3;">Letting Go of Noise</h4>
+        <p style="font-size:0.78rem;color:var(--subtle);line-height:1.55;">Clear the residue of yesterday before today begins</p>
+      </div>
+
+      <div style="padding:28px 22px;background:var(--white);border-radius:18px;border:1px solid transparent;transition:border-color 240ms,transform 220ms;cursor:default;"
+           onmouseover="this.style.borderColor='var(--gold)';this.style.transform='translateY(-3px)'"
+           onmouseout="this.style.borderColor='transparent';this.style.transform='translateY(0)'">
+        <div style="width:8px;height:8px;background:#C4A882;border-radius:50%;margin-bottom:18px;" aria-hidden="true"></div>
+        <h4 style="font-size:0.95rem;font-weight:600;color:var(--ink);margin-bottom:7px;line-height:1.3;">Starting Heavy Days Lightly</h4>
+        <p style="font-size:0.78rem;color:var(--subtle);line-height:1.55;">For mornings when the calendar is already too full</p>
+      </div>
+
+    </div>
+
+    <!-- Metadata row -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:48px;margin-top:52px;flex-wrap:wrap;gap:24px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span style="font-family:'Raleway',sans-serif;font-size:0.8rem;color:var(--muted);">Always 10 minutes</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        <span style="font-family:'Raleway',sans-serif;font-size:0.8rem;color:var(--muted);">Rewatchable without fatigue</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span style="font-family:'Raleway',sans-serif;font-size:0.8rem;color:var(--muted);">Predictable structure every session</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     AI, USED CAREFULLY
+═══════════════════════════════════════════════════════════ -->
+<section style="background:var(--ink);padding:120px 0;">
+  <div class="container">
+    <div style="max-width:740px;margin:0 auto;text-align:center;">
+
+      <span class="section-label">AI, Used Carefully</span>
+      <h2 style="font-size:clamp(1.9rem,4.5vw,3.2rem);font-weight:500;color:white;line-height:1.2;margin-bottom:20px;">
+        AI is a tool here.<br>
+        <em style="font-style:italic;color:rgba(255,255,255,0.35);">Not the product.</em>
+      </h2>
+      <p style="font-size:0.95rem;color:rgba(255,255,255,0.42);line-height:1.75;margin-bottom:60px;">
+        We use AI to do exactly one thing: generate short affirmations that match your stated intent. Everything else is handcrafted, predictable, and curated by humans.
+      </p>
+
+      <!-- Intent examples -->
+      <div style="display:flex;flex-direction:column;gap:12px;text-align:left;margin-bottom:60px;">
+
+        <div style="display:flex;align-items:center;gap:16px;padding:18px 22px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;">
+          <span style="font-family:'Raleway',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.22);flex-shrink:0;min-width:48px;">Intent</span>
+          <span style="font-family:'Lora',serif;font-size:0.95rem;font-style:italic;color:rgba(255,255,255,0.55);">"Today, help me stay focused without tension."</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:16px;padding:18px 22px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;">
+          <span style="font-family:'Raleway',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.22);flex-shrink:0;min-width:48px;">Intent</span>
+          <span style="font-family:'Lora',serif;font-size:0.95rem;font-style:italic;color:rgba(255,255,255,0.55);">"I want to feel calm but alert."</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:16px;padding:18px 22px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;">
+          <span style="font-family:'Raleway',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.22);flex-shrink:0;min-width:48px;">Intent</span>
+          <span style="font-family:'Lora',serif;font-size:0.95rem;font-style:italic;color:rgba(255,255,255,0.55);">"Prepare me to handle uncertainty."</span>
+        </div>
+
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;text-align:center;padding-top:48px;border-top:1px solid rgba(255,255,255,0.07);">
+        <div>
+          <div style="font-family:'Lora',serif;font-size:2.4rem;font-weight:500;color:var(--gold);margin-bottom:6px;line-height:1;">1–2</div>
+          <div style="font-family:'Raleway',sans-serif;font-size:0.78rem;color:rgba(255,255,255,0.28);letter-spacing:0.05em;">affirmations maximum</div>
+        </div>
+        <div>
+          <div style="font-family:'Lora',serif;font-size:2.4rem;font-weight:500;color:var(--gold);margin-bottom:6px;line-height:1;">Zero</div>
+          <div style="font-family:'Raleway',sans-serif;font-size:0.78rem;color:rgba(255,255,255,0.28);letter-spacing:0.05em;">diagnoses or clinical language</div>
+        </div>
+        <div>
+          <div style="font-family:'Lora',serif;font-size:2.4rem;font-weight:500;color:var(--gold);margin-bottom:6px;line-height:1;">No</div>
+          <div style="font-family:'Raleway',sans-serif;font-size:0.78rem;color:rgba(255,255,255,0.28);letter-spacing:0.05em;">feeds, streaks, or endless content</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     WHO IT'S FOR / WHAT IT'S NOT
+═══════════════════════════════════════════════════════════ -->
+<section style="background:var(--white);padding:120px 0;">
+  <div class="container">
+    <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:64px;">
+
+      <!-- Who it's for -->
+      <div>
+        <span class="section-label">Who It's For</span>
+        <h2 style="font-size:clamp(1.6rem,3vw,2.3rem);font-weight:500;color:var(--ink);margin-bottom:32px;line-height:1.3;">
+          People who wake up mentally noisy.
+        </h2>
+        <div style="display:flex;flex-direction:column;gap:10px;" role="list">
+          <div class="pill-row" role="listitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Builders and makers
+          </div>
+          <div class="pill-row" role="listitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Parents before the day starts
+          </div>
+          <div class="pill-row" role="listitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Operators carrying too many inputs
+          </div>
+          <div class="pill-row" role="listitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Creatives who need to get present fast
+          </div>
+          <div class="pill-row" role="listitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Anyone who wants clarity before input overload
+          </div>
+        </div>
+      </div>
+
+      <!-- What it's not -->
+      <div>
+        <span style="font-family:'Raleway',sans-serif;font-size:0.68rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--subtle);display:block;margin-bottom:14px;">What It's Not</span>
+        <h2 style="font-size:clamp(1.6rem,3vw,2.3rem);font-weight:500;color:var(--ink);margin-bottom:32px;line-height:1.3;">
+          Deliberately,<br>unapologetically limited.
+        </h2>
+        <div style="display:flex;flex-direction:column;gap:10px;" role="list">
+          <div class="pill-row pill-row-neg" role="listitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Therapy or clinical intervention
+          </div>
+          <div class="pill-row pill-row-neg" role="listitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Sleep tracking or biometrics
+          </div>
+          <div class="pill-row pill-row-neg" role="listitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Infinite meditation content
+          </div>
+          <div class="pill-row pill-row-neg" role="listitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Streak guilt or badges
+          </div>
+          <div class="pill-row pill-row-neg" role="listitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            A dopamine machine
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     FINAL CTA
+═══════════════════════════════════════════════════════════ -->
+<section style="background:linear-gradient(150deg,#040912 0%,#0a1525 50%,#0f1e30 100%);padding:150px 0;text-align:center;position:relative;overflow:hidden;">
+
+  <!-- Ambient bloom -->
+  <div aria-hidden="true" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:500px;border-radius:50%;background:radial-gradient(ellipse,rgba(212,175,55,0.09) 0%,transparent 62%);pointer-events:none;"></div>
+
+  <div class="container" style="position:relative;z-index:1;max-width:580px;">
+    <span class="section-label">Early Access</span>
+    <h2 style="font-size:clamp(2rem,5.5vw,3.8rem);font-weight:500;color:white;margin-bottom:18px;line-height:1.12;letter-spacing:-0.02em;">
+      Ten minutes.<br>
+      <em style="font-style:italic;color:var(--gold);">Tomorrow morning.</em>
+    </h2>
+    <p style="font-size:0.95rem;color:rgba(255,255,255,0.38);line-height:1.75;margin-bottom:52px;">
+      Relax XR is in development for Android XR glasses. Join the early access list to be among the first to experience the ritual.
+    </p>
+    <form class="email-form" style="max-width:460px;margin:0 auto 14px;" onsubmit="handleSubmit(event)" aria-label="Join early access">
+      <label for="email-footer" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Email address</label>
+      <input id="email-footer" type="email" placeholder="your@email.com" required autocomplete="email">
+      <button type="submit" class="btn-primary">Join Early Access</button>
+    </form>
+    <p style="font-family:'Raleway',sans-serif;font-size:0.73rem;color:rgba(255,255,255,0.2);letter-spacing:0.03em;">
+      No spam. No streaks. Just the ritual.
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════════════ -->
+<footer style="background:#060b14;padding:40px 0;border-top:1px solid rgba(255,255,255,0.05);">
+  <div class="container">
+    <div class="footer-inner" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+      <div style="font-family:'Lora',serif;font-size:1.1rem;font-weight:500;color:rgba(255,255,255,0.28);">
+        Relax<span style="color:rgba(212,175,55,0.5);">XR</span>
+      </div>
+      <p style="font-family:'Raleway',sans-serif;font-size:0.72rem;color:rgba(255,255,255,0.18);letter-spacing:0.06em;margin:0;">
+        Designed for Android XR &nbsp;·&nbsp; Not for eyes that need closing
+      </p>
+      <p style="font-family:'Raleway',sans-serif;font-size:0.72rem;color:rgba(255,255,255,0.15);margin:0;">
+        &copy; 2026 Relax XR
+      </p>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+  const HS_PORTAL_ID = '48399589';
+  const HS_FORM_ID   = '501d9d5e-aece-4c3b-9b90-766929e1d636';
+  const HS_ENDPOINT  = `https://api.hsforms.com/submissions/v3/integration/submit/${HS_PORTAL_ID}/${HS_FORM_ID}`;
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const form  = e.target;
+    const btn   = form.querySelector('button[type="submit"]');
+    const input = form.querySelector('input[type="email"]');
+    const email = input.value.trim();
+    const original = btn.textContent;
+
+    btn.textContent = 'Submitting…';
+    btn.disabled    = true;
+
+    try {
+      const res = await fetch(HS_ENDPOINT, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fields: [
+            { objectTypeId: '0-1', name: 'email', value: email }
+          ],
+          context: {
+            pageUri:  window.location.href,
+            pageName: document.title
+          }
+        })
+      });
+
+      if (!res.ok) throw new Error(`HubSpot returned ${res.status}`);
+
+      btn.textContent       = "You're in ✓";
+      btn.style.background  = '#4ade80';
+      btn.style.color       = '#052e16';
+      input.value           = '';
+
+      setTimeout(() => {
+        btn.textContent      = original;
+        btn.style.background = '';
+        btn.style.color      = '';
+        btn.disabled         = false;
+      }, 4000);
+
+    } catch (err) {
+      console.error('HubSpot submission error:', err);
+      btn.textContent      = 'Something went wrong — try again';
+      btn.style.background = '#ef4444';
+      btn.style.color      = 'white';
+      btn.disabled         = false;
+      setTimeout(() => {
+        btn.textContent      = original;
+        btn.style.background = '';
+        btn.style.color      = '';
+      }, 3500);
+    }
+  }
+
+  // Lightweight intersection observer for section reveals
+  if ('IntersectionObserver' in window) {
+    const sectionEls = document.querySelectorAll('.card, .pill-row');
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(el => {
+        if (el.isIntersecting) {
+          el.target.style.opacity = '1';
+          revealObs.unobserve(el.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    sectionEls.forEach(el => {
+      el.style.transition = 'opacity 0.5s ease';
+      revealObs.observe(el);
+    });
+  }
+</script>
+
+</body>
+</html>
