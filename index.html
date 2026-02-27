@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Relax XR — Start your day before the world starts you.</title>
   <meta name="description" content="A 10-minute morning readiness ritual designed for Android XR glasses. Guided breathing, visual focus, and AI-generated affirmations to help you wake up mentally aligned.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Relax XR — Start your day before the world starts you.">
+  <meta property="og:description" content="A 10-minute morning readiness ritual designed for Android XR glasses. Guided breathing, visual focus, and AI-generated affirmations to help you wake up mentally aligned.">
+  <meta property="og:image" content="/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Relax XR ambient morning scene for Android XR glasses with the message Start your day before the world starts you.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Relax XR — Start your day before the world starts you.">
+  <meta name="twitter:description" content="A 10-minute morning readiness ritual designed for Android XR glasses. Guided breathing, visual focus, and AI-generated affirmations to help you wake up mentally aligned.">
+  <meta name="twitter:image" content="/og-image.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,6 +94,22 @@
     .a-pulse        { animation: pulse 4s ease-in-out infinite; }
     .a-fade-up      { opacity: 0; animation: fadeUp 0.9s ease-out forwards; }
     .a-scroll-bob   { animation: scrollBob 2s ease-in-out infinite; }
+
+    @keyframes ringBreath {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.32); }
+    }
+    .ring-breath { transform-box: fill-box; transform-origin: center; }
+    .ring-1 { animation: ringBreath 7s ease-in-out infinite; }
+    .ring-2 { animation: ringBreath 7s ease-in-out infinite; animation-delay: -1s; }
+    .ring-3 { animation: ringBreath 7s ease-in-out infinite; animation-delay: -2s; }
+    .ring-4 { animation: ringBreath 7s ease-in-out infinite; animation-delay: -3s; }
+
+    @keyframes promptFade {
+      0%, 100% { opacity: 0.18; }
+      50%       { opacity: 0.38; }
+    }
+    .prompt-pulse { animation: promptFade 7s ease-in-out infinite; }
 
     .d-200  { animation-delay: 0.2s; }
     .d-400  { animation-delay: 0.4s; }
@@ -396,26 +423,160 @@
   <div class="container">
     <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
 
-      <!-- Visual preview -->
-      <div aria-hidden="true" style="position:relative;height:500px;background:linear-gradient(140deg,#080e1c,#0f1e30);border-radius:28px;overflow:hidden;order:0;">
-        <!-- Ambient orbs -->
-        <div class="a-breathe" style="position:absolute;top:44%;left:50%;transform:translate(-50%,-55%);width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,0.16) 0%,transparent 68%);"></div>
-        <div class="a-breathe-slow" style="position:absolute;top:30%;left:38%;transform:translate(-50%,-50%);width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(90,150,220,0.11) 0%,transparent 70%);animation-delay:-5s;"></div>
-        <!-- Horizon lines -->
-        <div class="a-pulse" style="position:absolute;top:62%;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,0.35),transparent);"></div>
-        <div class="a-pulse" style="position:absolute;top:66%;left:18%;right:18%;height:1px;background:linear-gradient(90deg,transparent,rgba(120,160,200,0.2),transparent);animation-delay:-2.5s;"></div>
-        <!-- Glasses frame motif -->
-        <div style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;">
-          <div style="width:88px;height:30px;border:1.5px solid rgba(255,255,255,0.12);border-radius:9px;background:rgba(255,255,255,0.025);"></div>
-          <div style="width:14px;height:2px;background:rgba(255,255,255,0.1);"></div>
-          <div style="width:88px;height:30px;border:1.5px solid rgba(255,255,255,0.12);border-radius:9px;background:rgba(255,255,255,0.025);"></div>
-        </div>
-        <p style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-family:'Raleway',sans-serif;font-size:0.6rem;color:rgba(255,255,255,0.18);letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;">What you see through the glasses</p>
-        <!-- Corner label -->
-        <div style="position:absolute;top:20px;left:20px;display:flex;align-items:center;gap:6px;">
-          <div style="width:5px;height:5px;border-radius:50%;background:var(--gold);" class="a-pulse"></div>
-          <span style="font-family:'Raleway',sans-serif;font-size:0.6rem;color:rgba(255,255,255,0.25);letter-spacing:0.1em;text-transform:uppercase;">Live</span>
-        </div>
+      <!-- Visual: XR Glasses SVG illustration -->
+      <div aria-hidden="true" style="border-radius:28px;overflow:hidden;background:linear-gradient(150deg,#060c18 0%,#0c1824 55%,#060c18 100%);">
+        <svg viewBox="0 0 500 420" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+          <defs>
+            <!-- Lens fill gradient -->
+            <radialGradient id="lensGrad" cx="50%" cy="38%" r="72%">
+              <stop offset="0%" stop-color="#16283c"/>
+              <stop offset="100%" stop-color="#07101c"/>
+            </radialGradient>
+
+            <!-- Warm bloom inside lens -->
+            <radialGradient id="lensBloomL" cx="50%" cy="52%" r="58%">
+              <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.13"/>
+              <stop offset="55%" stop-color="#5a8fe0" stop-opacity="0.04"/>
+              <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="lensBloomR" cx="50%" cy="52%" r="58%">
+              <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.13"/>
+              <stop offset="55%" stop-color="#5a8fe0" stop-opacity="0.04"/>
+              <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+            </radialGradient>
+
+            <!-- Ambient glow behind whole glasses -->
+            <radialGradient id="bgBloom" cx="50%" cy="48%" r="52%">
+              <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.07"/>
+              <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+            </radialGradient>
+
+            <!-- Gold center dot glow -->
+            <filter id="dotGlow" x="-120%" y="-120%" width="340%" height="340%">
+              <feGaussianBlur stdDeviation="3.5" result="b"/>
+              <feColorMatrix type="matrix" values="1 0.8 0 0 0 0.8 0.55 0 0 0 0 0 0 0 0 0 0 0 0.65 0" in="b" result="cb"/>
+              <feMerge><feMergeNode in="cb"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+
+            <!-- Soft frame glow -->
+            <filter id="frameGlow" x="-8%" y="-8%" width="116%" height="116%">
+              <feGaussianBlur stdDeviation="1.8" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+
+            <!-- Clip regions -->
+            <clipPath id="clipL">
+              <rect x="48" y="158" width="172" height="98" rx="14"/>
+            </clipPath>
+            <clipPath id="clipR">
+              <rect x="280" y="158" width="172" height="98" rx="14"/>
+            </clipPath>
+          </defs>
+
+
+          <!-- Room context: faint desk surface & window suggestion -->
+          <line x1="0" y1="370" x2="500" y2="370" stroke="rgba(212,175,55,0.06)" stroke-width="1"/>
+          <line x1="0" y1="376" x2="500" y2="376" stroke="rgba(100,140,200,0.04)" stroke-width="1"/>
+
+          <!-- ══════════════════════════════════
+               LEFT LENS
+          ══════════════════════════════════ -->
+
+          <!-- Lens fill -->
+          <rect x="48" y="158" width="172" height="98" rx="14" fill="url(#lensGrad)"/>
+
+          <!-- Clipped lens content — LEFT -->
+          <g clip-path="url(#clipL)">
+            <!-- Horizon lines -->
+            <line x1="60"  y1="232" x2="208" y2="232" stroke="#D4AF37" stroke-width="0.55" opacity="0.2"/>
+            <line x1="76"  y1="238" x2="192" y2="238" stroke="#6090c8" stroke-width="0.4"  opacity="0.1"/>
+            <!-- Top-edge dawn glow -->
+            <ellipse cx="134" cy="163" rx="58" ry="14" fill="#D4AF37" opacity="0.025" class="a-breathe-slow"/>
+            <!-- 8 breathing dots, all anchored at lens center; JS will translate them -->
+            <circle id="xr-l0" cx="134" cy="207" r="2.6" fill="#D4AF37" opacity="0.65"/>
+            <circle id="xr-l1" cx="134" cy="207" r="2.3" fill="#D4AF37" opacity="0.55"/>
+            <circle id="xr-l2" cx="134" cy="207" r="2.6" fill="#D4AF37" opacity="0.65"/>
+            <circle id="xr-l3" cx="134" cy="207" r="2.3" fill="#D4AF37" opacity="0.55"/>
+            <circle id="xr-l4" cx="134" cy="207" r="2.6" fill="#D4AF37" opacity="0.65"/>
+            <circle id="xr-l5" cx="134" cy="207" r="2.3" fill="#D4AF37" opacity="0.55"/>
+            <circle id="xr-l6" cx="134" cy="207" r="2.6" fill="#D4AF37" opacity="0.65"/>
+            <circle id="xr-l7" cx="134" cy="207" r="2.3" fill="#D4AF37" opacity="0.55"/>
+          </g>
+
+          <!-- Lens border / frame -->
+          <rect x="48" y="158" width="172" height="98" rx="14" fill="none" stroke="#D4AF37" stroke-width="1.4" opacity="0.38" filter="url(#frameGlow)"/>
+          <!-- Glass reflection highlight -->
+          <path d="M63 167 Q86 160 118 163" stroke="white" stroke-width="0.75" fill="none" stroke-linecap="round" opacity="0.09"/>
+
+          <!-- ══════════════════════════════════
+               RIGHT LENS
+          ══════════════════════════════════ -->
+
+          <rect x="280" y="158" width="172" height="98" rx="14" fill="url(#lensGrad)"/>
+
+          <g clip-path="url(#clipR)">
+            <line x1="292" y1="232" x2="440" y2="232" stroke="#D4AF37" stroke-width="0.55" opacity="0.2"/>
+            <line x1="308" y1="238" x2="424" y2="238" stroke="#6090c8" stroke-width="0.4"  opacity="0.1"/>
+            <ellipse cx="366" cy="163" rx="58" ry="14" fill="#D4AF37" opacity="0.025" class="a-breathe-slow"/>
+            <circle id="xr-r0" cx="366" cy="207" r="2.6" fill="#D4AF37" opacity="0.65"/>
+            <circle id="xr-r1" cx="366" cy="207" r="2.3" fill="#D4AF37" opacity="0.55"/>
+            <circle id="xr-r2" cx="366" cy="207" r="2.6" fill="#D4AF37" opacity="0.65"/>
+            <circle id="xr-r3" cx="366" cy="207" r="2.3" fill="#D4AF37" opacity="0.55"/>
+            <circle id="xr-r4" cx="366" cy="207" r="2.6" fill="#D4AF37" opacity="0.65"/>
+            <circle id="xr-r5" cx="366" cy="207" r="2.3" fill="#D4AF37" opacity="0.55"/>
+            <circle id="xr-r6" cx="366" cy="207" r="2.6" fill="#D4AF37" opacity="0.65"/>
+            <circle id="xr-r7" cx="366" cy="207" r="2.3" fill="#D4AF37" opacity="0.55"/>
+          </g>
+
+          <rect x="280" y="158" width="172" height="98" rx="14" fill="none" stroke="#D4AF37" stroke-width="1.4" opacity="0.38" filter="url(#frameGlow)"/>
+          <path d="M295 167 Q318 160 350 163" stroke="white" stroke-width="0.75" fill="none" stroke-linecap="round" opacity="0.09"/>
+
+          <!-- ══════════════════════════════════
+               FRAME STRUCTURE
+          ══════════════════════════════════ -->
+
+          <!-- Top rim — left lens -->
+          <path d="M48 170 L48 158 Q48 144 62 144 L208 144 Q222 144 222 158 L222 170"
+                fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.3" stroke-linejoin="round"/>
+
+          <!-- Top rim — right lens -->
+          <path d="M278 170 L278 158 Q278 144 292 144 L436 144 Q450 144 450 158 L450 170"
+                fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.3" stroke-linejoin="round"/>
+
+          <!-- Bridge -->
+          <path d="M222 174 C222 158 234 152 250 152 C266 152 278 158 278 174"
+                fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.42" stroke-linecap="round"/>
+
+          <!-- Nose pads -->
+          <path d="M238 174 Q236 180 240 183" fill="none" stroke="#D4AF37" stroke-width="1" opacity="0.25" stroke-linecap="round"/>
+          <path d="M262 174 Q264 180 260 183" fill="none" stroke="#D4AF37" stroke-width="1" opacity="0.25" stroke-linecap="round"/>
+
+          <!-- Left temple arm -->
+          <path d="M48 178 L10 178 Q2 178 1 187 L0 310"
+                fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.25" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Right temple arm -->
+          <path d="M450 178 L490 178 Q498 178 499 187 L500 310"
+                fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.25" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- ══════════════════════════════════
+               LABELS & PROMPTS
+          ══════════════════════════════════ -->
+
+          <!-- Live breath-phase label — updated by JS -->
+          <text id="xr-breath-label" x="250" y="286" text-anchor="middle"
+                font-family="Raleway, sans-serif" font-size="8.5" fill="#D4AF37"
+                opacity="0.42" letter-spacing="4">inhale</text>
+
+          <!-- Grounding prompt -->
+          <text x="250" y="336" text-anchor="middle"
+                font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="white"
+                font-style="italic" class="prompt-pulse">"Notice your breath without changing it."</text>
+
+          <!-- Caption -->
+          <text x="250" y="404" text-anchor="middle"
+                font-family="Raleway, sans-serif" font-size="8" fill="white"
+                opacity="0.16" letter-spacing="2.5">WHAT YOU SEE THROUGH THE GLASSES</text>
+        </svg>
       </div>
 
       <!-- Copy -->
@@ -799,6 +960,65 @@
       }, 3500);
     }
   }
+
+  // ── XR Glasses breathing-dot animation ────────────────────
+  (function xrBreath() {
+    // 7 s per cycle: 45% inhale, 55% exhale  (mirrors typical 4-7 breath pacing)
+    var CYCLE  = 7000;
+    var INHALE = 0.45;
+
+    // 8 dots at equal angles around the lens center.
+    // Radii: cardinal (0°/90°/180°/270°) slightly farther to suggest
+    // "straight-ahead" depth expansion on exhale.
+    var SPREAD = [
+      [  0,   32],   // E  — rightmost (straight ahead axis)
+      [ 45,   24],   // SE
+      [ 90,   26],   // S
+      [135,   24],   // SW
+      [180,   32],   // W  — leftmost  (straight ahead axis)
+      [225,   24],   // NW
+      [270,   26],   // N
+      [315,   24],   // NE
+    ];
+
+    // Ease-in-out cubic
+    function ease(t) {
+      return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+    }
+
+    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function tick(ts) {
+      if (prefersReduced) return;
+
+      var t        = (ts % CYCLE) / CYCLE;           // 0 → 1 per cycle
+      var inhaling = t < INHALE;
+      var raw      = inhaling ? t / INHALE : 1 - (t - INHALE) / (1 - INHALE);
+      var progress = ease(raw);                       // 0 = spread, 1 = condensed
+
+      SPREAD.forEach(function(pair, i) {
+        var angle  = pair[0] * Math.PI / 180;
+        var radius = pair[1];
+        var dx     = Math.cos(angle) * radius * (1 - progress);
+        var dy     = Math.sin(angle) * radius * (1 - progress);
+        var op     = (0.68 - progress * 0.55).toFixed(3);  // fade as dots converge
+        ['l', 'r'].forEach(function(side) {
+          var el = document.getElementById('xr-' + side + i);
+          if (!el) return;
+          el.setAttribute('transform', 'translate(' + dx.toFixed(2) + ',' + dy.toFixed(2) + ')');
+          el.setAttribute('opacity', op);
+        });
+      });
+
+      // Phase label
+      var label = document.getElementById('xr-breath-label');
+      if (label) label.textContent = inhaling ? 'inhale' : 'exhale';
+
+      requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+  })();
 
   // Lightweight intersection observer for section reveals
   if ('IntersectionObserver' in window) {
